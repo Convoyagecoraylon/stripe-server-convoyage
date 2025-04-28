@@ -1,8 +1,7 @@
-
 const express = require('express');
+const stripe = require('stripe')('sk_live_XXXXXX'); // Mets ta clé secrète Stripe ici
 const app = express();
 const cors = require('cors');
-const stripe = require('stripe')('sk_test_51RFLtGQ4TmkmK5u7W5rlil7ynUKNmoYWasOWvUKt3SskJutwScSS9OTJpujZrTMxWRnjAyYRq15vEs2CQXKiWpx0006t2OjGLA');
 
 app.use(cors());
 app.use(express.json());
@@ -17,23 +16,23 @@ app.post('/create-checkout-session', async (req, res) => {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: 'Convoyage Formule ECO+'
+            name: 'Convoyage de véhicule',
           },
-          unit_amount: Math.round(amount * 100)
+          unit_amount: amount,
         },
-        quantity: 1
+        quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'https://www.convoyagecoraylon.fr/success',
-      cancel_url: 'https://www.convoyagecoraylon.fr/cancel'
+      success_url: 'https://tonsite.com/success.html',
+      cancel_url: 'https://tonsite.com/cancel.html',
     });
 
-    res.json({ id: session.id, url: session.url });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: err.message });
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erreur Stripe' });
   }
 });
 
 const PORT = process.env.PORT || 4242;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));
